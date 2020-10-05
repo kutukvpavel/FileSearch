@@ -48,7 +48,7 @@ namespace FileSearch
                 try
                 {
                     item.CreateAlgorithm();
-                    Console.WriteLine(item.Encoding.EncodingName);
+                    Console.WriteLine(item.Encoding.WebName);
                 }
                 catch (Exception e)
                 {
