@@ -1,9 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace FileSearch
 {
@@ -15,16 +14,14 @@ namespace FileSearch
             {
                 { Encoding.ASCII },
                 { Encoding.Unicode },
-                //{ Encoding.UTF8 },
-                { Encoding.BigEndianUnicode }
+                { Encoding.UTF8 },
+                { Encoding.BigEndianUnicode },
+                { Encoding.UTF32 },
+                { Encoding.UTF7 }
             };
-            NotFound = Enumerable.Repeat(-1, Encodings.Count).ToArray();
-            Errors = new List<Exception>();
         }
 
         static readonly List<Encoding> Encodings;
-        static readonly int[] NotFound;
-        static List<Exception> Errors;
 
         static void Main(string[] args)
         {
@@ -34,8 +31,6 @@ namespace FileSearch
             Console.OutputEncoding = Encoding.Unicode;
             bool fileExists = File.Exists(args[1]);
             if (!fileExists && !Directory.Exists(args[1])) return;
-            byte[][] targets = Encodings.Select(x => x.GetBytes(args[0])).ToArray();
-            KnuthMorrisPratt[] algos = targets.Select(x => new KnuthMorrisPratt(x)).ToArray();
             string[] files;
             if (fileExists)
             {
@@ -43,67 +38,51 @@ namespace FileSearch
             }
             else
             {
-                files = Directory.GetFiles(args[1], "*", SearchOption.AllDirectories);
+                files = Directory.GetFiles(args[1], args.Length > 2 ? args[2] : "*", SearchOption.AllDirectories);
             }
-            int[][] results = new int[files.Length][];
-            Console.WriteLine("Searching files...");
-            for (int i = 0; i < files.Length; i++)
+            SearchTargetEqualityComparer comparer = new SearchTargetEqualityComparer(args[0]);
+            SearchTarget[] targets = Encodings.Select(x => new SearchTarget(args[0], x)).Distinct(comparer).ToArray();
+            Console.WriteLine("Distinct encodings:");
+            foreach (var item in targets)
             {
                 try
                 {
-                    results[i] = ProcessFile(files[i], /*targets,*/ algos);
+                    item.CreateAlgorithm();
+                    Console.WriteLine(item.Encoding.EncodingName);
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
-                    results[i] = NotFound;
-                    Errors.Add(ex);
+                    ErrorListener.Instance.Add(e);
                 }
             }
-            Console.WriteLine("Finished.");
-            var output = results.Select((x, i) =>
-                x.Any(z => z > -1)
-                ? string.Join(" === ", new string[] { files[i] }.Concat( 
-                    x.Select((y, j) => (y > -1) ? Encodings[j].EncodingName : null).Where(y => y != null)))
-                : null)
-                .Where(x => x != null);
-            foreach (var item in output)
+            var results = files.Select(x => new SearchFile(x)); 
+            Console.WriteLine(Environment.NewLine + "Searching files...");
+            foreach (var item in results)
             {
-                Console.WriteLine(item);
+                try
+                {
+                    item.Search(targets);
+                    if (item.Results.Any()) Console.WriteLine(item.ToString());
+                }
+                catch (Exception e)
+                {
+                    ErrorListener.Instance.Add(e);
+                }
             }
-            Console.WriteLine(Environment.NewLine + "Errors:");
-            foreach (var item in Errors)
+            Console.WriteLine("Finished!");
+            if (ErrorListener.Instance.Any()) Console.WriteLine(Environment.NewLine + "Errors:");
+            foreach (var item in ErrorListener.Instance)
             {
                 Console.WriteLine(item.ToString());
             }
             Console.ReadKey();
         }
+    }
 
-        static int[] ProcessFile(string path, /*byte[][] targets,*/ KnuthMorrisPratt[] algos)
-        {
-            var file = File.ReadAllBytes(path);
-            int[] res = new int[algos.Length];
-            for (int i = 0; i < algos.Length; i++)
-            {
-                res[i] = algos[i].Search(file);
-                /*int len = file.Length - targets[i].Length; //Simple shift->compare algorithm (for testing)
-                if (len < 0)
-                {
-                    res[i] = -1;
-                    continue;
-                }
-                int j = 0;
-                for (; j <= len; j++)
-                {
-                    int k = 0;
-                    for (; k < targets[i].Length; k++)
-                    {
-                        if (targets[i][k] != file[j + k]) break;
-                    }
-                    if (k == targets[i].Length) break;
-                }
-                res[i] = j > len ? -1 : j;*/
-            }
-            return res;
-        }
+    public static class ErrorListener
+    {
+        private static readonly List<Exception> _instance = new List<Exception>();
+
+        public static List<Exception> Instance { get { return _instance; } }
     }
 }
