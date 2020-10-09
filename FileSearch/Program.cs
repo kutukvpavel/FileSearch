@@ -28,7 +28,8 @@ namespace FileSearch
             if (args == null) return;
             if (args.Length < 2) return;
             if (args[0].Length == 0 || args[1].Length == 0) return;
-            Console.OutputEncoding = Encoding.Unicode;
+            Console.OutputEncoding = Encoding.UTF8;
+            args[1] = args[1].Trim('"');
             bool fileExists = File.Exists(args[1]);
             if (!fileExists && !Directory.Exists(args[1])) return;
             string[] files;
@@ -55,14 +56,14 @@ namespace FileSearch
                     ErrorListener.Instance.Add(e);
                 }
             }
-            var results = files.Select(x => new SearchFile(x)); 
+            SearchFile[] results = files.Select(x => new SearchFile(x)).ToArray(); 
             Console.WriteLine(Environment.NewLine + "Searching files...");
             foreach (var item in results)
             {
                 try
                 {
                     item.Search(targets);
-                    if (item.Results.Any()) Console.WriteLine(item.ToString());
+                    if (item.Results.Length > 0) Console.WriteLine(item.ToString());
                 }
                 catch (Exception e)
                 {

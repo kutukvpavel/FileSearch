@@ -87,7 +87,7 @@ namespace FileSearch
         public void Search(SearchTarget[] targets)
         {
             byte[] text = File.ReadAllBytes(Path);
-            Results = targets.Select(x => x.Search(text)).Where(x => x.Result > -1);
+            Results = targets.Select(x => x.Search(text)).Where(x => x.Result > -1).ToArray();
         }
 
         public override string ToString()
@@ -96,6 +96,6 @@ namespace FileSearch
         }
 
         public string Path { get; }
-        public IEnumerable<SearchResult> Results { get; private set; }
+        public SearchResult[] Results { get; private set; }
     }
 }
