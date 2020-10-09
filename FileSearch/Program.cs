@@ -49,7 +49,7 @@ namespace FileSearch
                 try
                 {
                     item.CreateAlgorithm();
-                    Console.WriteLine(item.Encoding.WebName);
+                    Console.WriteLine(item.ToString());
                 }
                 catch (Exception e)
                 {

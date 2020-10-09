@@ -55,6 +55,12 @@ namespace FileSearch
             return new SearchResult(this, Algorithm.Search(haystack));
         }
 
+        public override string ToString()
+        {
+            return string.Format("{0} = {1}", this.Encoding.WebName,
+                string.Join(" ", Bytes.Select(x => x.ToString("X")).ToArray()));
+        }
+
         public Encoding Encoding { get; }
         public byte[] Bytes { get; }
         private KnuthMorrisPratt Algorithm;
