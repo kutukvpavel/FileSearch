@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSearch", "FileSearch\FileSearch.csproj", "{C3D7C099-1A2C-4D9F-91C2-CF14C46E7D01}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalysisHelper", "AnalysisHelper\AnalysisHelper.csproj", "{3F6B793D-41A8-4C9E-A2AC-2241F1E61CF8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{C3D7C099-1A2C-4D9F-91C2-CF14C46E7D01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3D7C099-1A2C-4D9F-91C2-CF14C46E7D01}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3D7C099-1A2C-4D9F-91C2-CF14C46E7D01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F6B793D-41A8-4C9E-A2AC-2241F1E61CF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F6B793D-41A8-4C9E-A2AC-2241F1E61CF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F6B793D-41A8-4C9E-A2AC-2241F1E61CF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F6B793D-41A8-4C9E-A2AC-2241F1E61CF8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

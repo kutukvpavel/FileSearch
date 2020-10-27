@@ -3,35 +3,34 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MoreLinq.Extensions;
 
 namespace FileSearch
 {
-    static class Program
+    public enum ExitCodes
     {
-        static Program()
-        {
-            Encodings = new List<Encoding>()
-            {
-                { Encoding.ASCII },
-                { Encoding.Unicode },
-                { Encoding.UTF8 },
-                { Encoding.BigEndianUnicode },
-                { Encoding.UTF32 },
-                { Encoding.UTF7 }
-            };
-        }
+        EncoderError = -3,
+        IOError = -2,
+        BadArguments = -1,
+        OK = 0
+    }
 
-        static readonly List<Encoding> Encodings;
+    public static class Program
+    {
+        static List<Encoding> Encodings;
 
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            if (args == null) return;
-            if (args.Length < 2) return;
-            if (args[0].Length == 0 || args[1].Length == 0) return;
+            //Parse CLI
+            if (args == null) return (int)ExitCodes.BadArguments;
+            if (args.Length < 2) return (int)ExitCodes.BadArguments;
+            if (args[0].Length == 0 || args[1].Length == 0) return (int)ExitCodes.BadArguments;
             Console.OutputEncoding = Encoding.UTF8;
             args[1] = args[1].Trim('"');
+
+            //Get directory listings
             bool fileExists = File.Exists(args[1]);
-            if (!fileExists && !Directory.Exists(args[1])) return;
+            if (!fileExists && !Directory.Exists(args[1])) return (int)ExitCodes.IOError;
             string[] files;
             if (fileExists)
             {
@@ -39,10 +38,58 @@ namespace FileSearch
             }
             else
             {
-                files = Directory.GetFiles(args[1], args.Length > 2 ? args[2] : "*", SearchOption.AllDirectories);
+                try
+                {
+                    Console.WriteLine("Obtaining directory listings...");
+                    files = Directory.GetFiles(args[1], args.Length > 2 ? args[2] : "*", SearchOption.AllDirectories);
+                }
+                catch (IOException)
+                {
+                    Console.WriteLine("IO error!");
+                    return (int)ExitCodes.IOError;
+                }
             }
-            SearchTargetEqualityComparer comparer = new SearchTargetEqualityComparer(args[0]);
-            SearchTarget[] targets = Encodings.Select(x => new SearchTarget(args[0], x)).Distinct(comparer).ToArray();
+
+            //Create search targets
+            SearchTargetEqualityComparer comparer;
+            SearchTarget[] targets;
+            if (args.Contains("-b")) //Raw byte search
+            {
+                Encodings = new List<Encoding>()
+                {
+                    RawEncoding.Instance,
+                    RawReversedEncoding.Instance
+                };
+                args[0] = args[0].Trim('"');
+            }
+            else
+            {
+                Encodings = new List<Encoding>()
+                {
+                    Encoding.ASCII,
+                    Encoding.Unicode,
+                    Encoding.UTF8,
+                    Encoding.BigEndianUnicode,
+                    Encoding.UTF32,
+                    Encoding.UTF7
+                };
+            }
+            try
+            {
+                comparer = new SearchTargetEqualityComparer(args[0]);
+                targets = Encodings.Select(x => new SearchTarget(args[0], x)).Distinct(comparer).ToArray();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Encoder error:");
+                Console.WriteLine(ex.ToString());
+                return (int)ExitCodes.EncoderError;
+            }
+
+            //Preparations over,
+            //following sections do not terminate on errors
+
+            //Search
             Console.WriteLine("Distinct encodings:");
             foreach (var item in targets)
             {
@@ -71,12 +118,15 @@ namespace FileSearch
                 }
             }
             Console.WriteLine("Finished!");
+
+            //Output
             if (ErrorListener.Instance.Any()) Console.WriteLine(Environment.NewLine + "Errors:");
             foreach (var item in ErrorListener.Instance)
             {
                 Console.WriteLine(item.ToString());
             }
-            Console.ReadKey();
+            if (args.Contains("-k")) Console.ReadKey();
+            return (int)ExitCodes.OK;
         }
     }
 

@@ -76,7 +76,7 @@ namespace FileSearch
 
         public override string ToString()
         {
-            return string.Format("{0}: {1}", Target.Encoding.EncodingName, Result);
+            return string.Format("{0}: {1}", Target.Encoding.WebName, Result);
         }
 
         public SearchTarget Target { get; }
