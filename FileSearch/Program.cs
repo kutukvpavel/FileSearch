@@ -120,12 +120,15 @@ namespace FileSearch
             Console.WriteLine("Finished!");
 
             //Output
-            if (ErrorListener.Instance.Any()) Console.WriteLine(Environment.NewLine + "Errors:");
-            foreach (var item in ErrorListener.Instance)
+            if (!args.Contains("-s"))  //Silent
             {
-                Console.WriteLine(item.ToString());
+                if (ErrorListener.Instance.Any()) Console.WriteLine(Environment.NewLine + "Errors:");
+                foreach (var item in ErrorListener.Instance)
+                {
+                    Console.WriteLine(item.ToString());
+                }
             }
-            if (args.Contains("-k")) Console.ReadKey();
+            if (args.Contains("-k")) Console.ReadKey();  //Keep window
             return (int)ExitCodes.OK;
         }
     }
