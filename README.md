@@ -1,7 +1,7 @@
 # FileSearch
 Easy (binary) search for strings in files. Uses KMP matching algorithm and different encodings.
 
-Expects a string and a directory/file path as arguments. Third argument is filename filter (optional, GetFiles()-style, i.e. regex not supported).
+Expects a string and a directory/file path as arguments. Third argument is filename filter (optional, GetFiles()-style, i.e. regex not supported). Optional flags give you ability to input HEX strings, suppress exceptions etc. Use of flags makes all 3 arguments described above mandatory (their indexes are hard-coded), see Main() code.
 
 Generates byte patterns for all available (ASCII, UTF-16 LE and BE, UTF-7, UTF-8, UTF-32) encodings, chooses distinct ones and looks for them using Knuth-Morris-Pratt algorithm (implementation taken from: https://github.com/cschen1205/cs-algorithms and slightly modified to work with bytes).
 
