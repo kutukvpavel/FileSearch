@@ -1,5 +1,5 @@
 # FileSearch
-Easy (binary) search for strings in files. Uses KMP matching algorithm and different encodings.
+Easy (binary) search for strings in files. Uses KMP matching algorithm and different encodings. The main reason to reinvent the wheel of string searching once again was lack of transparency in existing tools that I could think of, and it turned out to be faster just to roll out my own version to be 100% sure on how it works and how trustworthy the "not found" result is.
 
 Expects a string and a directory/file path as arguments. Third argument is filename filter (optional, GetFiles()-style, i.e. regex not supported). Optional flags give you ability to input HEX strings, suppress exceptions etc. Use of flags makes all 3 arguments described above mandatory (their indexes are hard-coded), see Main() code.
 
